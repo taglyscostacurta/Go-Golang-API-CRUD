@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/taglyscostacurta/Go-Golang-API-CRUD/models"
 )
 
 func routeHearth(c *gin.Context) {
@@ -14,11 +15,11 @@ func routeHearth(c *gin.Context) {
 }
 
 func routeGetStudents(c *gin.Context) {
-	c.JSON(http.StatusOK, Students)
+	c.JSON(http.StatusOK, models.Students)
 }
 
 func routePostStudents(c *gin.Context) {
-	var student Student
+	var student models.Student
 
 	err := c.Bind(&student)
 	if err != nil {
@@ -27,13 +28,13 @@ func routePostStudents(c *gin.Context) {
 		})
 		return
 	}
-	student.ID = len(Students) + 1
-	Students = append(Students, student)
+	student.ID = len(models.Students) + 1
+	models.Students = append(models.Students, student)
 
 	c.JSON(http.StatusCreated, student)
 }
 
-func getRoutes(c *gin.Engine) *gin.Engine {
+func GetRoutes(c *gin.Engine) *gin.Engine {
 	c.GET("/heart", routeHearth)
 
 	groupStudents := c.Group("/students")
