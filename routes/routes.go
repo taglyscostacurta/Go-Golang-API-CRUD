@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/taglyscostacurta/Go-Golang-API-CRUD/controllers"
 	"github.com/taglyscostacurta/Go-Golang-API-CRUD/models"
 )
 
@@ -26,9 +27,10 @@ func routePostStudents(c *gin.Context) {
 
 	err := c.Bind(&student)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"messge_error": "Não foi possível adicionar um estudante",
-		})
+		// c.JSON(http.StatusBadRequest, gin.H{
+		// 	"messge_error": "Não foi possível adicionar um estudante",
+		// })
+		c.JSON(http.StatusBadRequest, controllers.NewResponseMessageError(err.Error()))
 		return
 	}
 	student.ID = len(models.Students) + 1
