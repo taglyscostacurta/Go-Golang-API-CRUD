@@ -2,7 +2,7 @@ package models
 
 type Student struct {
 	ID       int    `json:"id"`
-	FullName string `json:"name"`
+	FullName string `json:"full_name"`
 	Age      int    `json:"age"`
 }
 
