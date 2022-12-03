@@ -18,7 +18,7 @@ func routeHearth(c *gin.Context) {
 
 // lista todos os estudantes
 func routeGetStudents(c *gin.Context) {
-	c.JSON(http.StatusOK, models.Students)
+	c.JSON(200, gin.H{"students": models.Students})
 }
 
 // cria um estudante
@@ -27,19 +27,15 @@ func routePostStudents(c *gin.Context) {
 
 	err := c.Bind(&student)
 	if err != nil {
-		// c.JSON(http.StatusBadRequest, gin.H{
-		// 	"messge_error": "Não foi possível adicionar um estudante",
-		// })
-		c.JSON(http.StatusBadRequest, controllers.NewResponseMessageError(err.Error()))
+
+		c.JSON(400, controllers.NewResponseMessageError(err.Error()))
 		return
 	}
-	student.ID = len(models.Students) + 1
+
+	student.ID = models.Students[len(models.Students)-1].ID + 1
 	models.Students = append(models.Students, student)
 
-	// student.ID = models.Students[len(models.Students)-1].ID
-	// models.Students = append(models.Students, student)
-
-	c.JSON(http.StatusCreated, student)
+	c.JSON(201, student)
 }
 
 // lista um estudante
@@ -72,7 +68,7 @@ func routePutStudents(c *gin.Context) {
 	}
 	// se o id for igual a zero talvez o estudande procurado nao exista mais ou nao foi encontrado
 	if studentLocal.ID == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.JSON(404, gin.H{
 			"messge_error": "Não foi possível encontrar o estudante",
 		})
 		return
@@ -80,7 +76,7 @@ func routePutStudents(c *gin.Context) {
 	}
 
 	studentLocal.FullName = studentPayload.FullName
-	studentLocal.Age = studentLocal.Age
+	studentLocal.Age = studentPayload.Age
 
 	for _, studentElement := range models.Students {
 		if id == studentElement.ID {
@@ -95,6 +91,29 @@ func routePutStudents(c *gin.Context) {
 	c.JSON(http.StatusOK, studentLocal)
 }
 
+// delet student
+func routeDeleteStudents(c *gin.Context) {
+	var newStudents []models.Student
+
+	id, err := strconv.Atoi(c.Params.ByName("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"messge_error": "Não foi possível obter o id",
+		})
+		return
+	}
+
+	for _, studentElement := range models.Students {
+		if id != studentElement.ID {
+			newStudents = append(newStudents, studentElement)
+		}
+	}
+
+	models.Students = newStudents
+
+	c.JSON(http.StatusOK, controllers.NewResponseMessage("Estudante deletado com sucesso"))
+}
+
 func GetRoutes(c *gin.Engine) *gin.Engine {
 	c.GET("/heart", routeHearth)
 
@@ -102,6 +121,7 @@ func GetRoutes(c *gin.Engine) *gin.Engine {
 	groupStudents.GET("/", routeGetStudents)
 	groupStudents.POST("/", routePostStudents)
 	groupStudents.PUT("/:id", routePutStudents)
+	groupStudents.DELETE("/:id", routeDeleteStudents)
 
 	return c
 }
